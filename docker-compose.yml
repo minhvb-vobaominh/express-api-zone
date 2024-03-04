@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  react_app:
+    build: ./client
+    container_name: react_app
+    ports:
+      - 3000:3000
+  express_app:
+    container_name: express_app
+    build: ./server
+    ports:
+      - 8000:8000
+    volumes:
+      - ./deployment/server/uploads/thumbnails:/app/uploads/thumbnails:rw
+    environment:
+      - DB_URL=mongodb://minhvb:example@db:27017/realestatedoc
+      - APP_HOST_PORT=8000
+    depends_on:
+      - db
+  db:
+    image: bitnami/mongodb:7.0-debian-12
+    container_name: db
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGODB_ROOT_PASSWORD=13579
+      - MONGODB_DATABASE=realestatedoc_zone
+    volumes:
+      - ./deployment/mongodb/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:rw
